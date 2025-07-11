@@ -1,69 +1,176 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>München Rolplay</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="scripts.js"></script>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StreamFlix - Login</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #141414; color: #eee; margin: 0; padding: 0; }
+  #login, #app { max-width: 400px; margin: 100px auto; background: #222; padding: 20px; border-radius: 8px; }
+  input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 4px; border: none; }
+  button { padding: 10px 20px; background: #e50914; border: none; border-radius: 4px; color: white; cursor: pointer; }
+  button:hover { background: #f40612; }
+  h1 { margin-top: 0; }
+  #languageSwitch { float: right; cursor: pointer; font-size: 14px; color: #ccc; }
+  ul { padding: 0; list-style: none; }
+  li { padding: 8px; background: #333; margin: 5px 0; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .highlight { background: #e50914; }
+  .admin-btn { background: #444; border: none; color: #eee; cursor: pointer; padding: 5px 10px; border-radius: 4px; }
+</style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="rp.jpg" alt="Logo" class="logo-img">
-                München Rolplay
-            </div>
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="nav-list">
-                <li><a href="index.html">Startseite</a></li>
-                <li><a href="about.html">Jobs</a></li>
-                <li><a href="contact.html">Team info</a></li>
-                <li><a href="gallery.html">Galerie</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section class="background-image">
-            <h1>🚨 Notruf Emden RP präsentiert: München RP - Dein neues Roleplay-Erlebnis! 🚨</h1>
-            
-            <h2>🎭 Willkommen bei München RP! 🎭</h2>
-            <ul style="list-style: none; padding: 0; text-align: center; display: inline-block; max-width: 800px;">
-                <p><small>Tauche ein in die lebendige Welt von München, wo du deine eigene Geschichte schreiben kannst! Ob als Polizei, Feuerwehr, Arzt, Zivilist oder in einer der vielen anderen Rollen - 
-                    hier gibt es für jeden die perfekte Möglichkeit, sein Rollenspiel zu entfalten.</small></p>
-                <p style="text-align: center; display: inline-block; max-width: 800px;"> 
-                 🔹  Was dich erwartet: </p> 
-                 <li> Realistische RP-Szenarien</li>
-                 <li> Engagierte Community</li>
-                 <li> Tägliche Events und spannende Missionen</li>
-                 <li> Professionelle Moderation und Management</li>
-                 <li> Vielfalt an Jobs und Möglichkeiten</li>
-                <p style="text-align: center; display: inline-block; max-width: 800px;">
-                    🔹 Werde Teil von München RP und erlebe:</p>
-                        <li>📍 Eine detailgetreue Nachbildung von München</li>
-                        <li>🚓 Packende Polizeieinsätze</li>
-                        <li>🚑 Realistische Notfälle und Rettungsaktionen</li>
-                        <li>🎉 Regelmäßige Events, die den Alltag aufpeppen</li>
-                        <p>Komm jetzt vorbei und sei Teil unseres Teams! Egal, ob du neu im RP bist oder ein erfahrener Spieler - bei uns findest du immer ein spannendes Abenteuer. ✨</p>
-                        <a href="https://discord.gg/6puVtA5mCF" style="text-decoration: none; color: white; background-color: #7289da; padding: 10px 20px; border-radius: 5px; display: inline-block;">
-                            <img src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/discord.svg" alt="Discord" style="width: 20px; vertical-align: middle; margin-right: 5px;">
-                            Join auf München RP server
-                        </a>
-                        <p>Lass uns gemeinsam das RP in München auf das nächste Level heben! 🚀</p>
-                    </ul>
-        </section>
-    </main>
-    <footer>
-            <a href="https://discord.gg/6puVtA5mCF" style="text-decoration: none; color: white; background-color: #7289da; padding: 10px 20px; border-radius: 5px; display: inline-block;">
-                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v3/icons/discord.svg" alt="Discord" style="width: 20px; vertical-align: middle; margin-right: 5px;">
-                Join auf München RP server
-            </a>
-        
-    </footer>
+
+<div id="login">
+  <div id="languageSwitch">EN</div>
+  <h1 data-i18n="loginTitle">StreamFlix Login</h1>
+  <input type="text" id="username" placeholder="Benutzername / Username" />
+  <input type="password" id="pin" placeholder="PIN" />
+  <button id="loginBtn" data-i18n="loginBtn">Anmelden / Login</button>
+  <p id="error" style="color:#f44336;"></p>
+</div>
+
+<div id="app" style="display:none;">
+  <div id="languageSwitchApp">DE</div>
+  <h1 data-i18n="welcome">Willkommen, <span id="userDisplay"></span></h1>
+  <button id="logoutBtn" data-i18n="logoutBtn">Abmelden / Logout</button>
+
+  <h2 data-i18n="top10">Top 1 bis 10 Filme</h2>
+  <ul id="movieList"></ul>
+</div>
+
+<script>
+  // Hardcoded users
+  const users = {
+    admin: { pin: 'admin', rank: 'owner' },
+    user1: { pin: '1234', rank: 'user' }
+  };
+
+  // Filme Top 10 (kann man später erweitern)
+  let movies = [
+    { id: 1, title: { de: "Der Pate", en: "The Godfather" }, highlighted: false },
+    { id: 2, title: { de: "Die Verurteilten", en: "The Shawshank Redemption" }, highlighted: false },
+    { id: 3, title: { de: "Inception", en: "Inception" }, highlighted: false },
+    { id: 4, title: { de: "Forrest Gump", en: "Forrest Gump" }, highlighted: false },
+    { id: 5, title: { de: "Matrix", en: "The Matrix" }, highlighted: false },
+    { id: 6, title: { de: "Gladiator", en: "Gladiator" }, highlighted: false },
+    { id: 7, title: { de: "Interstellar", en: "Interstellar" }, highlighted: false },
+    { id: 8, title: { de: "Fight Club", en: "Fight Club" }, highlighted: false },
+    { id: 9, title: { de: "Der Herr der Ringe", en: "The Lord of the Rings" }, highlighted: false },
+    { id: 10, title: { de: "Pulp Fiction", en: "Pulp Fiction" }, highlighted: false }
+  ];
+
+  // i18n Texte
+  const texts = {
+    de: {
+      loginTitle: "StreamFlix Login",
+      loginBtn: "Anmelden",
+      logoutBtn: "Abmelden",
+      welcome: "Willkommen,",
+      top10: "Top 1 bis 10 Filme",
+      highlightBtn: "Markieren",
+      unhighlightBtn: "Markierung entfernen",
+      errorLogin: "Benutzername oder PIN falsch."
+    },
+    en: {
+      loginTitle: "StreamFlix Login",
+      loginBtn: "Login",
+      logoutBtn: "Logout",
+      welcome: "Welcome,",
+      top10: "Top 1 to 10 Movies",
+      highlightBtn: "Highlight",
+      unhighlightBtn: "Remove Highlight",
+      errorLogin: "Username or PIN incorrect."
+    }
+  };
+
+  let currentLang = 'de';
+  let currentUser = null;
+
+  const loginDiv = document.getElementById('login');
+  const appDiv = document.getElementById('app');
+  const userDisplay = document.getElementById('userDisplay');
+  const movieList = document.getElementById('movieList');
+  const errorP = document.getElementById('error');
+
+  // Sprachumschalter
+  function updateTexts() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = texts[currentLang][key];
+    });
+    // Update placeholders
+    document.getElementById('username').placeholder = currentLang === 'de' ? 'Benutzername / Username' : 'Username';
+    document.getElementById('pin').placeholder = currentLang === 'de' ? 'PIN' : 'PIN';
+    // Update language switch text
+    document.getElementById('languageSwitch').textContent = currentLang === 'de' ? 'EN' : 'DE';
+    document.getElementById('languageSwitchApp').textContent = currentLang === 'de' ? 'EN' : 'DE';
+
+    renderMovieList();
+  }
+
+  // Login Funktion
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const username = document.getElementById('username').value.trim();
+    const pin = document.getElementById('pin').value.trim();
+
+    if (users[username] && users[username].pin === pin) {
+      currentUser = { name: username, rank: users[username].rank };
+      loginDiv.style.display = 'none';
+      appDiv.style.display = 'block';
+      userDisplay.textContent = username;
+      errorP.textContent = '';
+      updateTexts();
+    } else {
+      errorP.textContent = texts[currentLang].errorLogin;
+    }
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    currentUser = null;
+    loginDiv.style.display = 'block';
+    appDiv.style.display = 'none';
+    document.getElementById('username').value = '';
+    document.getElementById('pin').value = '';
+    errorP.textContent = '';
+  });
+
+  // Sprache wechseln
+  document.getElementById('languageSwitch').addEventListener('click', () => {
+    currentLang = currentLang === 'de' ? 'en' : 'de';
+    updateTexts();
+  });
+  document.getElementById('languageSwitchApp').addEventListener('click', () => {
+    currentLang = currentLang === 'de' ? 'en' : 'de';
+    updateTexts();
+  });
+
+  // Filme rendern, Admin kann highlight toggeln
+  function renderMovieList() {
+    movieList.innerHTML = '';
+    movies.forEach(movie => {
+      const li = document.createElement('li');
+      li.textContent = movie.title[currentLang];
+      if (movie.highlighted) li.classList.add('highlight');
+
+      if (currentUser && currentUser.rank === 'owner') {
+        const btn = document.createElement('button');
+        btn.className = 'admin-btn';
+        btn.textContent = movie.highlighted ? texts[currentLang].unhighlightBtn : texts[currentLang].highlightBtn;
+        btn.addEventListener('click', () => {
+          movie.highlighted = !movie.highlighted;
+          renderMovieList();
+        });
+        li.appendChild(btn);
+      }
+
+      movieList.appendChild(li);
+    });
+  }
+
+  // Init
+  updateTexts();
+
+</script>
 </body>
 </html>
