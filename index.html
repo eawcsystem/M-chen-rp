@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StreamFlix - Login</title>
+<title>StreamFlix - Suche & Filme</title>
 <style>
   * {
     margin: 0; padding: 0; box-sizing: border-box;
@@ -12,9 +12,10 @@
     height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #0a0f24;
-    overflow: hidden;
+    overflow-x: hidden;
     color: white;
   }
+  /* Hintergrund Berge Animation */
   .background {
     position: fixed;
     width: 100%;
@@ -49,6 +50,36 @@
     0% {transform: translateX(-25%);}
     100% {transform: translateX(0);}
   }
+  
+  /* Header mit Logo und Logout */
+  #appHeader {
+    display: none;
+    background-color: #111;
+    padding: 15px 30px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    font-weight: 900;
+    font-size: 24px;
+    color: #e50914;
+  }
+  #appHeader .logo {
+    cursor: default;
+  }
+  #logoutBtn {
+    background: transparent; 
+    border: none; 
+    color: white; 
+    cursor: pointer;
+    font-weight: 700; 
+    font-size: 18px;
+    transition: color 0.3s ease;
+  }
+  #logoutBtn:hover {
+    color: #e50914;
+  }
+
+  /* Login Container */
   #loginContainer {
     height: 100vh;
     display: flex;
@@ -114,32 +145,8 @@
     margin-bottom: 15px;
     font-weight: 700;
   }
-  #appHeader {
-    display: none;
-    background-color: #111;
-    padding: 15px 30px;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    font-weight: 900;
-    font-size: 24px;
-    color: #e50914;
-  }
-  #appHeader .logo {
-    cursor: default;
-  }
-  #logoutBtn {
-    background: transparent; 
-    border: none; 
-    color: white; 
-    cursor: pointer;
-    font-weight: 700; 
-    font-size: 18px;
-    transition: color 0.3s ease;
-  }
-  #logoutBtn:hover {
-    color: #e50914;
-  }
+
+  /* Content Bereich mit Suchfeld */
   #content {
     padding: 30px 20px;
     max-width: 1200px;
@@ -147,40 +154,63 @@
     color: white;
     display: none;
   }
+  #searchContainer {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  #searchInput {
+    width: 80%;
+    max-width: 500px;
+    padding: 12px 20px;
+    border-radius: 30px;
+    border: none;
+    font-size: 1.2rem;
+    box-shadow: 0 0 10px rgba(229,9,20,0.5);
+    transition: box-shadow 0.3s ease;
+  }
+  #searchInput:focus {
+    outline: none;
+    box-shadow: 0 0 20px #e50914;
+  }
+
+  /* Gitter für Filme & Serien */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+    gap: 18px;
   }
   .card {
     background: #222;
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     position: relative;
-    transition: transform 0.3s ease;
-    height: 240px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 270px;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 0 5px transparent;
+  }
+  .card:hover {
+    transform: scale(1.07);
+    box-shadow: 0 8px 20px rgba(229,9,20,0.7);
+    z-index: 10;
   }
   .card img {
     width: 100%;
-    height: 180px;
+    height: 190px;
     object-fit: cover;
     flex-shrink: 0;
     display: block;
+    border-bottom: 3px solid #e50914;
   }
   .card video {
     position: absolute;
     top: 0; left: 0;
     width: 100%;
-    height: 180px;
+    height: 190px;
     object-fit: cover;
     display: none;
-  }
-  .card:hover {
-    transform: scale(1.05);
-    z-index: 10;
   }
   .card:hover video {
     display: block;
@@ -189,16 +219,21 @@
     display: none;
   }
   .card > div {
-    padding: 8px;
+    padding: 10px;
     font-weight: 700;
+    font-size: 1.1rem;
     flex-grow: 1;
+    color: #fff;
+    text-align: center;
+    user-select: none;
   }
+
   /* Detail Overlay */
   #detailOverlay {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0,0,0,0.95);
     display: none;
     flex-direction: column;
     align-items: center;
@@ -209,52 +244,68 @@
   #detailOverlay h2 {
     color: white;
     margin-bottom: 15px;
+    text-align: center;
+    font-size: 2rem;
   }
   #detailOverlay video {
     max-width: 90vw;
     max-height: 80vh;
-    border-radius: 8px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #e50914;
   }
   #episodeButtons {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
   }
   #episodeButtons button {
-    padding: 8px 12px;
+    padding: 10px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 12px;
     background: #e50914;
     color: white;
     cursor: pointer;
     font-weight: 700;
     opacity: 0.7;
     transition: opacity 0.3s ease;
+    font-size: 1rem;
   }
   #episodeButtons button.active {
+    opacity: 1;
+  }
+  #episodeButtons button:hover {
     opacity: 1;
   }
   #closeDetailBtn {
     position: absolute;
     top: 20px;
     right: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
+    padding: 14px 24px;
+    font-size: 20px;
     cursor: pointer;
     background: #e50914;
     border: none;
     color: white;
-    border-radius: 6px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #e50914;
+    transition: background-color 0.3s ease;
   }
+  #closeDetailBtn:hover {
+    background: #b20710;
+  }
+
   /* Responsive */
-  @media (max-width: 600px) {
-    #loginContainer h1 {
-      font-size: 3rem;
+  @media (max-width: 700px) {
+    #searchInput {
+      width: 95%;
     }
-    form {
-      padding: 25px 20px;
+    .card {
+      height: 230px;
+    }
+    .card img, .card video {
+      height: 150px;
     }
   }
 </style>
@@ -273,43 +324,60 @@
   <form id="loginForm" aria-describedby="errorMsg" aria-label="Login Formular">
     <div id="errorMsg" role="alert" aria-live="assertive"></div>
     <label for="username">Benutzername</label>
-    <input type="text" id="username" name="username" autocomplete="username" required autofocus />
+    <input type="text" id="username" name="username" autocomplete="username" required aria-required="true" />
     <label for="pin">PIN</label>
-    <input type="password" id="pin" name="pin" autocomplete="current-password" required />
-    <button type="submit">Anmelden</button>
+    <input type="password" id="pin" name="pin" autocomplete="current-password" required aria-required="true" />
+    <button type="submit" aria-label="Anmelden">Anmelden</button>
   </form>
+  <p style="margin-top: 12px; color: #aaa;">Gastzugang: Benutzername: <strong>gast</strong>, PIN: <strong>gast</strong></p>
 </div>
 
-<!-- Hauptseite -->
-<header id="appHeader" role="banner">
-  <div class="logo" tabindex="0">Flix</div>
-  <button id="logoutBtn" aria-label="Logout">Logout</button>
+<!-- Header -->
+<header id="appHeader" role="banner" aria-label="App Header">
+  <div class="logo" aria-hidden="true">Flix</div>
+  <button id="logoutBtn" aria-label="Abmelden">Logout</button>
 </header>
 
-<main id="content" tabindex="-1" aria-live="polite" aria-label="Filmbibliothek"></main>
+<!-- Hauptinhalt -->
+<main id="content" tabindex="-1" aria-live="polite" aria-label="Filme und Serien">
+  <div id="searchContainer">
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="Suche Filme oder Serien..."
+      aria-label="Suche Filme oder Serien"
+      autocomplete="off"
+    />
+  </div>
+  <!-- Hier wird das Grid mit Filmen/Serien gerendert -->
+</main>
 
 <!-- Detail Overlay -->
 <div id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
-  <button id="closeDetailBtn" aria-label="Schließen">✕ Schließen</button>
+  <button id="closeDetailBtn" aria-label="Schließen">&times;</button>
   <h2 id="detailTitle"></h2>
-  <video controls autoplay muted></video>
+  <video controls playsinline></video>
   <div id="episodeButtons"></div>
 </div>
 
 <script>
-  const loginForm = document.getElementById("loginForm");
-  const errorMsg = document.getElementById("errorMsg");
-  const loginContainer = document.getElementById("loginContainer");
-  const appHeader = document.getElementById("appHeader");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const content = document.getElementById("content");
-  const detailOverlay = document.getElementById("detailOverlay");
-  const detailTitle = document.getElementById("detailTitle");
-  const detailVideo = detailOverlay.querySelector("video");
-  const episodeButtons = document.getElementById("episodeButtons");
+  // Elemente
+  const loginForm = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+  const loginContainer = document.getElementById('loginContainer');
+  const appHeader = document.getElementById('appHeader');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const content = document.getElementById('content');
+  const searchInput = document.getElementById('searchInput');
+  const detailOverlay = document.getElementById('detailOverlay');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailVideo = detailOverlay.querySelector('video');
+  const episodeButtons = document.getElementById('episodeButtons');
+  const closeDetailBtn = document.getElementById('closeDetailBtn');
 
   let currentUserRole = null;
 
+  // Film- und Serienbibliothek
   const library = [
     {
       id: "film1",
@@ -343,7 +411,6 @@
       ],
       trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"
     },
-    // Weitere Filme/Serien hier hinzufügen
     {
       id: "film3",
       type: "movie",
@@ -370,12 +437,28 @@
     }
   ];
 
-  function renderLibrary() {
-    content.innerHTML = "";
+  // Funktion um Filme/Serien anzuzeigen
+  function renderLibrary(filter = "") {
+    content.querySelectorAll('.grid').forEach(g => g.remove());
+
+    const filtered = library.filter(item =>
+      item.title.toLowerCase().includes(filter.toLowerCase())
+    );
+
     const grid = document.createElement("div");
     grid.className = "grid";
 
-    library.forEach(item => {
+    if(filtered.length === 0) {
+      const noResult = document.createElement("p");
+      noResult.textContent = "Keine Filme oder Serien gefunden.";
+      noResult.style.textAlign = "center";
+      noResult.style.fontSize = "1.3rem";
+      noResult.style.marginTop = "40px";
+      content.appendChild(noResult);
+      return;
+    }
+
+    filtered.forEach(item => {
       const card = document.createElement("div");
       card.className = "card";
       card.tabIndex = 0;
@@ -394,7 +477,7 @@
       video.style.top = "0";
       video.style.left = "0";
       video.style.width = "100%";
-      video.style.height = "180px";
+      video.style.height = "190px";
       video.style.objectFit = "cover";
       video.style.display = "none";
 
@@ -403,17 +486,13 @@
 
       const titleDiv = document.createElement("div");
       titleDiv.textContent = item.title;
-      titleDiv.style.padding = "8px";
-      titleDiv.style.fontWeight = "700";
-      titleDiv.style.flexGrow = "1";
       card.appendChild(titleDiv);
 
-      // Trailer-Vorschau für alle Rollen (Owner & Guest)
       card.addEventListener("mouseenter", () => {
         img.style.display = "none";
         video.style.display = "block";
         video.play();
-        card.style.transform = "scale(1.05)";
+        card.style.transform = "scale(1.07)";
         card.style.zIndex = "10";
       });
       card.addEventListener("mouseleave", () => {
@@ -425,19 +504,15 @@
         card.style.zIndex = "1";
       });
 
-      card.addEventListener("click", () => {
-        openDetail(item);
-      });
+      card.addEventListener("click", () => openDetail(item));
 
       grid.appendChild(card);
     });
 
     content.appendChild(grid);
-    content.style.display = "block";
-    content.focus();
   }
 
-  // Detail Overlay Funktionen
+  // Detail Overlay schließen
   closeDetailBtn.addEventListener("click", () => {
     detailOverlay.style.display = "none";
     detailVideo.pause();
@@ -445,6 +520,7 @@
     episodeButtons.innerHTML = "";
   });
 
+  // Detail Overlay öffnen und Video laden
   function openDetail(item) {
     detailTitle.textContent = item.title;
     episodeButtons.innerHTML = "";
@@ -454,7 +530,7 @@
       episodeButtons.style.display = "none";
     } else if(item.type === "series") {
       if(currentUserRole === "owner") {
-        // Alle Episoden als Buttons
+        // Alle Episoden als Buttons anzeigen
         detailVideo.src = item.seasons[0].episodes[0].video;
         episodeButtons.style.display = "flex";
         item.seasons.forEach(season => {
@@ -472,7 +548,7 @@
           });
         });
       } else {
-        // Guest: Nur erste Folge abspielen, kein Button
+        // Gast: Nur erste Folge ansehen, keine Buttons
         detailVideo.src = item.seasons[0].episodes[0].video;
         episodeButtons.style.display = "none";
       }
@@ -494,29 +570,4 @@
       loginContainer.style.display = "none";
       appHeader.style.display = "flex";
       logoutBtn.style.display = "inline-block";
-      renderLibrary();
-    } else if(username === "gast" && pin === "gast") {
-      currentUserRole = "guest";
-      errorMsg.textContent = "";
-      loginContainer.style.display = "none";
-      appHeader.style.display = "flex";
-      logoutBtn.style.display = "none"; // Gast hat keinen Logout-Button
-      renderLibrary();
-    } else {
-      errorMsg.textContent = "Falscher Benutzername oder PIN.";
-    }
-  });
-
-  logoutBtn.addEventListener("click", () => {
-    currentUserRole = null;
-    loginContainer.style.display = "flex";
-    appHeader.style.display = "none";
-    content.style.display = "none";
-    detailOverlay.style.display = "none";
-    loginForm.reset();
-    errorMsg.textContent = "";
-  });
-</script>
-
-</body>
-</html>
+      render
