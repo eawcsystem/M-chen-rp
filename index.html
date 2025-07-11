@@ -3,171 +3,216 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StreamFlix - Netflix Style</title>
+<title>StreamFlix - Netflix Clone mit Trailer Vorschau</title>
 <style>
-  /* Netflix-ähnliches Farbschema */
   body {
-    margin: 0;
-    background-color: #141414;
-    color: #fff;
+    margin: 0; background-color: #141414; color: white;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
   }
   header {
     background-color: #111;
     padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; justify-content: space-between; align-items: center;
   }
   header h1 {
-    font-weight: 900;
-    font-size: 28px;
-    color: #e50914;
-    margin: 0;
+    color: #e50914; font-weight: 900; font-size: 28px; margin: 0;
+  }
+  #searchInput {
+    background: #333;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 16px;
+    width: 300px;
+  }
+  #searchInput::placeholder {
+    color: #bbb;
   }
   #logoutBtn {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 8px 16px;
+    background: transparent; border: none; color: white; cursor: pointer;
+    font-weight: 700; font-size: 16px;
   }
   #logoutBtn:hover {
     text-decoration: underline;
   }
-
-  /* Login-Bereich */
-  #login {
-    max-width: 320px;
-    margin: 100px auto;
-    background: #222;
-    padding: 40px 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.7);
-  }
-  #login h2 {
-    margin-bottom: 20px;
-    font-weight: 700;
-    font-size: 24px;
-    text-align: center;
-  }
-  #login input {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  #login button {
-    width: 100%;
-    background: #e50914;
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    padding: 14px;
-    border-radius: 4px;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 15px;
-  }
-  #login button:hover {
-    background: #f40612;
-  }
-  #loginError {
-    color: #ff6161;
-    text-align: center;
-    margin-top: 10px;
-    min-height: 20px;
-  }
-
-  /* Hauptbereich mit Filmen */
-  #main {
+  main {
     max-width: 1200px;
     margin: 30px auto;
-    padding: 0 20px 60px;
+    padding: 0 20px 80px;
   }
-  #welcome {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 25px;
+  h2 {
+    margin-top: 40px;
+    margin-bottom: 15px;
   }
-  .movie-grid {
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+    gap: 15px;
   }
-  .movie-card {
-    position: relative;
-    cursor: pointer;
+  .card {
+    background: #222;
     border-radius: 6px;
     overflow: hidden;
-    background: #222;
-    box-shadow: 0 0 8px rgba(0,0,0,0.9);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s ease;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
   }
-  .movie-card.highlight {
-    border: 3px solid #f5c518; /* Netflix Top10 gold */
-  }
-  .movie-card:hover {
+  .card:hover {
     transform: scale(1.05);
     box-shadow: 0 0 15px #e50914;
-    z-index: 10;
+    z-index: 5;
   }
-  .movie-card img {
+  .card img, .card video {
     width: 100%;
-    display: block;
+    height: 180px;
+    object-fit: cover;
+    flex-shrink: 0;
   }
-  .movie-title {
-    padding: 10px 10px 8px;
+  .card .title {
+    padding: 8px 10px;
     font-weight: 700;
-    font-size: 16px;
-    background: #141414;
-    color: #fff;
-    text-align: center;
+    font-size: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background: #141414;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
   }
-  .btn-play {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(229, 9, 20, 0.8);
+  /* Detail Overlay */
+  #detailOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+  }
+  #detailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: #111;
+  }
+  #detailHeader h2 {
+    margin: 0; font-size: 24px; font-weight: 900; color: #e50914;
+  }
+  #closeDetail {
+    background: transparent;
     border: none;
-    padding: 12px 25px;
-    font-size: 16px;
+    font-size: 28px;
     font-weight: 700;
-    border-radius: 25px;
     color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .movie-card:hover .btn-play {
-    opacity: 1;
-  }
-  .btn-highlight {
-    background: #444;
-    border: none;
-    color: #f5c518;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 700;
-    margin: 8px auto 10px;
-    display: block;
     cursor: pointer;
   }
-  .btn-highlight:hover {
-    background: #333;
+  #detailContent {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    flex-direction: column;
   }
   video {
-    margin-top: 10px;
-    width: 100%;
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 10px;
+    background: black;
+  }
+  /* Serien Episoden-Liste */
+  #episodeList {
+    margin-top: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: #222;
     border-radius: 6px;
+    padding: 10px 15px;
+    color: #eee;
+    width: 100%;
+  }
+  #episodeList button {
+    background: #333;
+    border: none;
+    color: #eee;
+    padding: 8px 12px;
+    margin: 4px 6px 4px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+  }
+  #episodeList button:hover,
+  #episodeList button.active {
+    background-color: #e50914;
+    color: white;
+  }
+  /* Scrollbar für EpisodeList */
+  #episodeList::-webkit-scrollbar {
+    height: 8px;
+  }
+  #episodeList::-webkit-scrollbar-thumb {
+    background: #e50914;
+    border-radius: 4px;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 15px 15px;
+    }
+
+    #searchInput {
+      width: 100%;
+      margin: 10px 0 0 0;
+      font-size: 18px;
+    }
+
+    main {
+      padding: 0 10px 60px;
+    }
+
+    .grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      height: 200px;
+    }
+
+    .card img, .card video {
+      height: 140px;
+    }
+
+    .card .title {
+      font-size: 14px;
+      padding: 6px 8px;
+    }
+
+    #detailOverlay {
+      padding: 10px;
+    }
+
+    #detailContent video {
+      max-width: 100vw !important;
+      max-height: 50vh !important;
+      border-radius: 0;
+    }
+
+    #episodeList {
+      max-height: 100px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
   }
 </style>
 </head>
@@ -175,171 +220,240 @@
 
 <header>
   <h1>StreamFlix</h1>
+  <input id="searchInput" type="search" placeholder="Suche Filme und Serien..." />
   <button id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
 </header>
 
-<div id="login">
-  <h2>Login</h2>
-  <input type="text" id="username" placeholder="Benutzername" autocomplete="username" />
-  <input type="password" id="password" placeholder="PIN" autocomplete="current-password" />
-  <button onclick="login()">Anmelden</button>
-  <p id="loginError"></p>
-</div>
+<main id="content">
+  <!-- Dynamisch gefüllt -->
+</main>
 
-<div id="main" style="display:none">
-  <h2 id="welcome"></h2>
-  <div class="movie-grid" id="movieContainer"></div>
+<!-- Detail-Overlay für Film/Serie -->
+<div id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+  <div id="detailHeader">
+    <h2 id="detailTitle"></h2>
+    <button id="closeDetail" aria-label="Schließen">&times;</button>
+  </div>
+  <div id="detailContent">
+    <!-- Video und Episodenliste -->
+  </div>
 </div>
 
 <script>
-  const users = {
-    admin: { password: "admin", role: "owner" },
-    user1: { password: "1234", role: "user" }
-  };
+  let currentUser = null;
 
-  const movies = [
+  const library = [
     {
-      id: "movie1",
+      id: "film1",
+      type: "movie",
       title: "Der Pate",
-      file: "movies/godfather.mp4",
-      poster: "posters/godfather.jpg",
-      highlighted: false
+      poster: "https://m.media-amazon.com/images/I/41+eK8zBwQL._AC_.jpg",
+      videos: ["https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"],
+      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"
     },
     {
-      id: "movie2",
+      id: "film2",
+      type: "movie",
       title: "Inception",
-      file: "movies/inception.mp4",
-      poster: "posters/inception.jpg",
-      highlighted: false
+      poster: "https://m.media-amazon.com/images/I/51s+7X1rmtL._AC_.jpg",
+      videos: ["https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"],
+      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"
     },
     {
-      id: "movie3",
-      title: "Matrix",
-      file: "movies/matrix.mp4",
-      poster: "posters/matrix.jpg",
-      highlighted: false
+      id: "serie1",
+      type: "series",
+      title: "Stranger Things",
+      poster: "https://upload.wikimedia.org/wikipedia/commons/3/38/Stranger_Things_logo.png",
+      seasons: [
+        {
+          season: 1,
+          episodes: [
+            {title:"Folge 1: Das Verschwinden", video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"},
+            {title:"Folge 2: Der Geist", video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"}
+          ]
+        }
+      ],
+      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/big_buck_bunny.webm"
     },
     {
-      id: "movie4",
-      title: "Interstellar",
-      file: "movies/interstellar.mp4",
-      poster: "posters/interstellar.jpg",
-      highlighted: false
-    },
-    {
-      id: "movie5",
-      title: "Fight Club",
-      file: "movies/fightclub.mp4",
-      poster: "posters/fightclub.jpg",
-      highlighted: false
-    },
-    {
-      id: "movie6",
-      title: "Der Herr der Ringe",
-      file: "movies/lotr.mp4",
-      poster: "posters/lotr.jpg",
-      highlighted: false
+      id: "serie2",
+      type: "series",
+      title: "Dark",
+      poster: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Dark_logo.svg",
+      seasons: [
+        {
+          season: 1,
+          episodes: [
+            {title:"Folge 1: Geheimnis", video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/big_buck_bunny.webm"},
+            {title:"Folge 2: Vergangenheit", video:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"}
+          ]
+        }
+      ],
+      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"
     }
   ];
 
-  let currentUser = null;
+  const content = document.getElementById("content");
+  const searchInput = document.getElementById("searchInput");
+  const logoutBtn = document.getElementById("logoutBtn");
 
+  const detailOverlay = document.getElementById("detailOverlay");
+  const detailTitle = document.getElementById("detailTitle");
+  const detailContent = document.getElementById("detailContent");
+  const closeDetailBtn = document.getElementById("closeDetail");
+
+  // Einfacher Login: admin/admin
   function login() {
-    const user = document.getElementById("username").value.trim();
-    const pass = document.getElementById("password").value.trim();
-    const errorEl = document.getElementById("loginError");
-
-    if (users[user] && users[user].password === pass) {
-      currentUser = { name: user, role: users[user].role };
-      document.getElementById("login").style.display = "none";
-      document.getElementById("main").style.display = "block";
-      document.getElementById("logoutBtn").style.display = "inline-block";
-      errorEl.textContent = "";
-      renderMovies();
+    let user = prompt("Benutzername:");
+    let pass = prompt("PIN:");
+    if(user === "admin" && pass === "admin") {
+      currentUser = {name: "admin", role: "owner"};
+      alert("Willkommen, Admin!");
+      logoutBtn.style.display = "inline-block";
+      renderLibrary();
     } else {
-      errorEl.textContent = "Falscher Benutzername oder PIN.";
+      alert("Falscher Benutzername oder PIN.");
+      login();
     }
   }
 
   function logout() {
     currentUser = null;
-    document.getElementById("main").style.display = "none";
-    document.getElementById("login").style.display = "block";
-    document.getElementById("logoutBtn").style.display = "none";
-    document.getElementById("username").value = "";
-    document.getElementById("password").value = "";
-    document.getElementById("loginError").textContent = "";
+    logoutBtn.style.display = "none";
+    content.innerHTML = "";
+    login();
   }
 
-  function renderMovies() {
-    const container = document.getElementById("movieContainer");
-    const welcome = document.getElementById("welcome");
-    welcome.textContent = `Willkommen, ${currentUser.name}`;
-    container.innerHTML = "";
+  // Liste anzeigen mit automatischer Trailer-Vorschau
+  function renderLibrary(filter = "") {
+    content.innerHTML = "";
 
-    movies.forEach(movie => {
-      const card = document.createElement("div");
-      card.className = "movie-card" + (movie.highlighted ? " highlight" : "");
+    let filtered = library.filter(item => 
+      item.title.toLowerCase().includes(filter.toLowerCase())
+    );
 
-      // Poster
-      const img = document.createElement("img");
-      img.src = movie.poster;
-      img.alt = movie.title;
-
-      // Titel
-      const title = document.createElement("div");
-      title.className = "movie-title";
-      title.textContent = movie.title;
-
-      // Play Button (overlay)
-      const playBtn = document.createElement("button");
-      playBtn.className = "btn-play";
-      playBtn.textContent = "PLAY";
-      playBtn.onclick = e => {
-        e.stopPropagation();
-        playMovie(movie, card);
-      };
-
-      // Highlight Button nur für Owner
-      if (currentUser.role === "owner") {
-        const highlightBtn = document.createElement("button");
-        highlightBtn.className = "btn-highlight";
-        highlightBtn.textContent = movie.highlighted ? "Top 10 entfernen" : "Als Top 10 markieren";
-        highlightBtn.onclick = e => {
-          e.stopPropagation();
-          movie.highlighted = !movie.highlighted;
-          renderMovies();
-        };
-        card.appendChild(highlightBtn);
-      }
-
-      card.appendChild(img);
-      card.appendChild(title);
-      card.appendChild(playBtn);
-
-      // Klick auf ganze Karte auch startet Video
-      card.onclick = () => playMovie(movie, card);
-
-      container.appendChild(card);
-    });
-  }
-
-  function playMovie(movie, card) {
-    // Entferne ggf. bereits vorhandenes Video (Toggle)
-    const existingVideo = card.querySelector("video");
-    if (existingVideo) {
-      existingVideo.remove();
+    if(filtered.length === 0) {
+      content.innerHTML = "<p>Keine Filme oder Serien gefunden.</p>";
       return;
     }
 
-    const video = document.createElement("video");
-    video.src = movie.file;
-    video.controls = true;
-    video.autoplay = true;
-    video.style.marginTop = "10px";
-    card.appendChild(video);
-    video.scrollIntoView({behavior:"smooth"});
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    filtered.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      // Bild und Video - Video nur für Hover (trailer)
+      const img = document.createElement("img");
+      img.src = item.poster;
+      img.alt = `${item.title} Poster`;
+
+      const video = document.createElement("video");
+      video.src = item.trailer;
+      video.muted = true;
+      video.loop = true;
+      video.style.position = "absolute";
+      video.style.top = "0";
+      video.style.left = "0";
+      video.style.width = "100%";
+      video.style.height = "180px";
+      video.style.objectFit = "cover";
+      video.style.display = "none";
+      video.style.zIndex = "1";
+      video.setAttribute("aria-hidden", "true");
+
+      card.appendChild(img);
+      card.appendChild(video);
+
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = item.title;
+      card.appendChild(title);
+
+      // Trailer bei Hover anzeigen
+      card.addEventListener("mouseenter", () => {
+        img.style.display = "none";
+        video.style.display = "block";
+        video.play();
+      });
+      card.addEventListener("mouseleave", () => {
+        video.pause();
+        video.style.display = "none";
+        img.style.display = "block";
+      });
+
+      // Film/Serie öffnen beim Klick
+      card.addEventListener("click", () => {
+        openDetail(item);
+      });
+
+      grid.appendChild(card);
+    });
+
+    content.appendChild(grid);
   }
+
+  // Detailansicht öffnen
+  function openDetail(item) {
+    detailTitle.textContent = item.title;
+    detailContent.innerHTML = "";
+
+    if(item.type === "movie") {
+      // Film Video
+      const video = document.createElement("video");
+      video.src = item.videos[0];
+      video.controls = true;
+      video.autoplay = true;
+      video.style.maxHeight = "80vh";
+      video.style.maxWidth = "90vw";
+      detailContent.appendChild(video);
+    } else if(item.type === "series") {
+      // Serien Video + Episoden Liste
+      const video = document.createElement("video");
+      video.src = item.seasons[0].episodes[0].video;
+      video.controls = true;
+      video.autoplay = true;
+      video.style.maxHeight = "80vh";
+      video.style.maxWidth = "90vw";
+      detailContent.appendChild(video);
+
+      const episodeList = document.createElement("div");
+      episodeList.id = "episodeList";
+
+      item.seasons.forEach(season => {
+        season.episodes.forEach((ep, idx) => {
+          const epBtn = document.createElement("button");
+          epBtn.textContent = ep.title;
+          epBtn.addEventListener("click", () => {
+            video.src = ep.video;
+            video.play();
+            Array.from(episodeList.children).forEach(b => b.classList.remove("active"));
+            epBtn.classList.add("active");
+          });
+          episodeList.appendChild(epBtn);
+        });
+      });
+
+      detailContent.appendChild(episodeList);
+      episodeList.children[0].classList.add("active");
+    }
+
+    detailOverlay.style.display = "flex";
+  }
+
+  closeDetailBtn.addEventListener("click", () => {
+    detailOverlay.style.display = "none";
+    detailContent.innerHTML = "";
+  });
+
+  // Sucheingabe
+  searchInput.addEventListener("input", () => {
+    renderLibrary(searchInput.value);
+  });
+
+  // Beim Laden Login starten
+  login();
 </script>
 
 </body>
