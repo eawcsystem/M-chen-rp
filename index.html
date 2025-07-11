@@ -1,217 +1,472 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flix - Streaming</title>
-  <style>
-    * {box-sizing: border-box; margin: 0; padding: 0;}
-    body {
-      font-family: Arial, sans-serif;
-      background: url('https://images.unsplash.com/photo-1508261301800-d2e74be2beba?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
-      background-size: cover;
-      color: white;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Flix - Streaming Dienst</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  /* Animierte Berge als Hintergrund */
+  body, html {
+    margin:0; padding:0; height:100%;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(to top, #0b0f1a 0%, #1a2348 70%);
+    overflow-x: hidden;
+    color:#eee;
+  }
+  #mountains {
+    position: fixed;
+    bottom: 0;
+    left: 0; right:0;
+    height: 150px;
+    background:
+      linear-gradient(45deg, #0a0f20 25%, transparent 25%) -50px 0,
+      linear-gradient(-45deg, #0a0f20 25%, transparent 25%) -50px 0,
+      linear-gradient(45deg, #0f1528 25%, transparent 25%),
+      linear-gradient(-45deg, #0f1528 25%, transparent 25%);
+    background-size: 100px 100px;
+    background-repeat: repeat-x;
+    animation: mountainMove 20s linear infinite;
+    z-index: 0;
+  }
+  @keyframes mountainMove {
+    from {background-position-x: 0;}
+    to {background-position-x: 100px;}
+  }
+
+  /* Layout */
+  header {
+    position: fixed;
+    top:0; left:0; right:0;
+    height: 60px;
+    background: rgba(20, 24, 42, 0.9);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 10;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    cursor: default;
+  }
+  #logoutBtn {
+    background: #e50914;
+    border:none;
+    color:#fff;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    display:none;
+  }
+  #logoutBtn:hover {
+    background: #f6121d;
+  }
+
+  main {
+    padding-top: 70px;
+    max-width: 1200px;
+    margin: auto;
+    z-index: 1;
+    position: relative;
+  }
+
+  /* Login */
+  #loginContainer {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(10,14,24,0.85);
+    color: #ccc;
+    text-align: center;
+    z-index: 20;
+    position: relative;
+  }
+  #loginContainer h2 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  #loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 280px;
+  }
+  #loginForm input {
+    padding: 10px;
+    font-size: 1.1rem;
+    border-radius: 5px;
+    border: none;
+  }
+  #loginForm button {
+    background: #e50914;
+    border: none;
+    color: white;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #loginForm button:hover {
+    background: #f6121d;
+  }
+  #errorMsg {
+    color: #f44336;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+
+  /* Kategorie & Suche */
+  #filterBar {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  #filterBar button {
+    background: #222945;
+    border: none;
+    padding: 10px 18px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #bbb;
+    transition: background 0.3s;
+  }
+  #filterBar button.active,
+  #filterBar button:hover {
+    background: #e50914;
+    color: #fff;
+  }
+  #searchInput {
+    flex-grow: 1;
+    min-width: 200px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+  }
+
+  /* Grid */
+  #gridContainer, #topGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+    gap: 15px;
+  }
+  .card {
+    background: #161b2c;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgb(229 9 20 / 0.5);
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease;
+  }
+  .card:hover, .card:focus-visible {
+    transform: scale(1.05);
+    z-index: 5;
+  }
+  .card img {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    display: block;
+  }
+  .card video {
+    position: absolute;
+    top:0; left:0;
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    display: none;
+    z-index: 3;
+  }
+  .card:hover video,
+  .card:focus-visible video {
+    display: block;
+  }
+  .card .title {
+    padding: 8px 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #eee;
+    background: #111722;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Top-Rang Badge */
+  .top-rank-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #e50914;
+    color: white;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    z-index: 10;
+  }
+
+  /* Detail Overlay Vollbild */
+  #detailOverlay {
+    display: none;
+    position: fixed;
+    z-index: 30;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: white;
+  }
+  #detailOverlay.active {
+    display: flex;
+  }
+  #detailContent {
+    max-width: 900px;
+    width: 100%;
+    background: #111722;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 30px #e50914aa;
+  }
+  #detailVideo {
+    width: 100%;
+    height: 480px;
+    background: black;
+    outline: none;
+  }
+  #detailTitle {
+    font-size: 1.8rem;
+    padding: 15px 20px 10px;
+    font-weight: 700;
+    background: #161b2c;
+  }
+  #episodeButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 15px;
+  }
+  #episodeButtons button {
+    background: #222945;
+    border: none;
+    color: #bbb;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  #episodeButtons button.active,
+  #episodeButtons button:hover {
+    background: #e50914;
+    color: #fff;
+  }
+  #closeDetailBtn {
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 0 0 10px 10px;
+    width: 100%;
+    font-size: 1.1rem;
+  }
+  #closeDetailBtn:hover {
+    background: #f6121d;
+  }
+
+  /* Top-Rang Eingabe im Detail */
+  #topRankContainer {
+    padding: 10px 20px 15px;
+    background: #161b2c;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #topRankContainer label {
+    font-weight: 700;
+    color: #ccc;
+  }
+  #topRankInput {
+    width: 60px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  #saveTopRankBtn {
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  #saveTopRankBtn:hover {
+    background: #f6121d;
+  }
+
+  /* Top-Liste */
+  #topList {
+    margin-bottom: 30px;
+  }
+  #topList h2 {
+    margin-bottom: 15px;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #e50914;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #detailVideo {
+      height: 260px;
     }
-    header {
-      background: rgba(0,0,0,0.8);
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    #gridContainer, #topGrid {
+      grid-template-columns: repeat(auto-fill,minmax(130px,1fr));
     }
-    .logo { font-size: 24px; color: red; font-weight: bold; }
-    .logout { cursor: pointer; }
-    .main { padding: 20px; }
-    .search input {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      margin-bottom: 20px;
+  }
+  @media (max-width: 480px) {
+    header h1 {
+      font-size: 1.2rem;
     }
-    .section-title { font-size: 24px; margin: 20px 0 10px; }
-    .catalog {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-    }
-    .card {
-      background: rgba(0,0,0,0.6);
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      transition: 0.3s;
-    }
-    .card:hover { transform: scale(1.05); cursor: pointer; }
-    .card img {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 99;
+    #filterBar {
       flex-direction: column;
+      gap: 8px;
     }
-    .modal video {
-      width: 80%; max-height: 80%;
-    }
-    .modal button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: red;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
-    /* Login Screen */
-    .login-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4));
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 100;
-    }
-    .login-box {
-      background: rgba(0,0,0,0.8);
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      width: 300px;
-    }
-    .login-box input {
+    #searchInput {
       width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      margin-bottom: 20px;
-      border: none;
-      border-radius: 5px;
     }
-    .login-box button {
-      padding: 10px 20px;
-      background: red;
-      border: none;
-      color: white;
-      cursor: pointer;
+    #gridContainer, #topGrid {
+      grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
     }
-    @media(max-width: 600px) {
-      .card img { height: 180px; }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
 
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <h2>Flix Login</h2>
-    <input type="text" id="username" placeholder="Benutzername">
-    <input type="password" id="pin" placeholder="PIN">
-    <button onclick="login()">Anmelden</button>
-  </div>
-</div>
+<div id="mountains"></div>
 
 <header>
-  <div class="logo">Flix</div>
-  <div class="logout" onclick="logout()">Ausloggen</div>
+  <h1>Flix</h1>
+  <button id="logoutBtn" title="Ausloggen">Logout</button>
 </header>
 
-<div class="main">
-  <div class="search">
-    <input type="text" id="searchInput" oninput="filterContent()" placeholder="Suche Filme oder Serien...">
-  </div>
-
-  <div class="section-title">Top 10</div>
-  <div class="catalog" id="topCatalog"></div>
-
-  <div class="section-title">Filme</div>
-  <div class="catalog" id="movieCatalog"></div>
-
-  <div class="section-title">Serien</div>
-  <div class="catalog" id="seriesCatalog"></div>
+<div id="loginContainer">
+  <h2>Willkommen bei Flix</h2>
+  <form id="loginForm" autocomplete="off" aria-label="Anmeldeformular">
+    <input type="text" name="username" placeholder="Benutzername" required autocomplete="off" aria-required="true" aria-label="Benutzername" />
+    <input type="password" name="pin" placeholder="PIN" required autocomplete="off" aria-required="true" aria-label="PIN" />
+    <button type="submit">Anmelden</button>
+    <p id="errorMsg" role="alert" aria-live="assertive"></p>
+  </form>
+  <p style="margin-top: 15px; color:#999; font-size:0.9rem;">Benutzer: admin/admin (Besitzer), gast/gast (Gast)</p>
 </div>
 
-<div class="modal" id="videoModal">
-  <video id="videoPlayer" controls autoplay></video>
-  <button onclick="closeModal()">Schließen</button>
+<main style="display:none;">
+  <section id="topList" aria-label="Top Filme und Serien">
+    <h2>Top Filme & Serien (mindestens 1000 Bewertungen)</h2>
+    <div id="topGrid" role="list"></div>
+  </section>
+
+  <section id="filterBar" aria-label="Filter und Suche">
+    <div>
+      <button id="btnMovies" class="active" aria-pressed="true">Filme</button>
+      <button id="btnSeries" aria-pressed="false">Serien</button>
+    </div>
+    <input id="searchInput" type="search" placeholder="Suche Filme & Serien" aria-label="Suche Filme und Serien" />
+  </section>
+
+  <section id="gridContainer" role="list" aria-label="Filme und Serien"></section>
+</main>
+
+<!-- Detail Overlay -->
+<div id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle" tabindex="-1">
+  <div id="detailContent">
+    <video id="detailVideo" controls tabindex="0" aria-describedby="episodeButtons"></video>
+    <div id="detailTitle"></div>
+    <div id="episodeButtons" role="list" aria-label="Episoden"></div>
+    <div id="topRankContainer">
+      <label for="topRankInput">Top Rang:</label>
+      <input type="number" id="topRankInput" min="1" max="100" aria-label="Top Rang eingeben" />
+      <button id="saveTopRankBtn">Speichern</button>
+    </div>
+    <button id="closeDetailBtn" aria-label="Detailansicht schließen">Schließen</button>
+  </div>
 </div>
 
 <script>
-  const media = [
-    { title: \"Inception\", type: \"movie\", image: \"https://upload.wikimedia.org/wikipedia/en/7/7f/Inception_ver3.jpg\", video: \"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4\", top: true },
-    { title: \"Skyfall\", type: \"movie\", image: \"https://upload.wikimedia.org/wikipedia/en/a/a7/Skyfall_poster.jpg\", video: \"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4\", top: false },
-    { title: \"Tears of Steel\", type: \"series\", image: \"https://upload.wikimedia.org/wikipedia/commons/e/e9/Tears_of_Steel_Poster.jpg\", video: \"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4\", top: true },
-    { title: \"Sintel\", type: \"series\", image: \"https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Sintel_poster.jpg/800px-Sintel_poster.jpg\", video: \"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4\", top: false }
-  ];
-
-  let currentUser = null;
-
-  function login() {
-    const user = document.getElementById('username').value;
-    const pin = document.getElementById('pin').value;
-    if ((user === \"admin\" && pin === \"admin\") || (user === \"gast\" && pin === \"gast\")) {
-      currentUser = user;
-      document.getElementById(\"loginScreen\").style.display = \"none\";
-      loadCatalog();
-    } else {
-      alert(\"Zugangsdaten falsch!\");
-    }
-  }
-
-  function logout() {
-    location.reload();
-  }
-
-  function loadCatalog() {
-    const top = media.filter(m => m.top);
-    const movies = media.filter(m => m.type === \"movie\");
-    const series = media.filter(m => m.type === \"series\");
-
-    renderCatalog(\"topCatalog\", top);
-    renderCatalog(\"movieCatalog\", movies);
-    renderCatalog(\"seriesCatalog\", series);
-  }
-
-  function renderCatalog(id, items) {
-    const container = document.getElementById(id);
-    container.innerHTML = \"\";
-    items.forEach(item => {
-      const card = document.createElement(\"div\");
-      card.className = \"card\";
-      card.innerHTML = `<img src=\"${item.image}\" alt=\"${item.title}\"><h3>${item.title}</h3>`;
-      card.onclick = () => openModal(item.video);
-      container.appendChild(card);
-    });
-  }
-
-  function openModal(videoURL) {
-    document.getElementById(\"videoPlayer\").src = videoURL;
-    document.getElementById(\"videoModal\").style.display = \"flex\";
-  }
-
-  function closeModal() {
-    document.getElementById(\"videoModal\").style.display = \"none\";
-    document.getElementById(\"videoPlayer\").pause();
-  }
-
-  function filterContent() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = media.filter(m => m.title.toLowerCase().includes(query));
-    renderCatalog(\"movieCatalog\", filtered.filter(m => m.type === 'movie'));
-    renderCatalog(\"seriesCatalog\", filtered.filter(m => m.type === 'series'));
-    renderCatalog(\"topCatalog\", filtered.filter(m => m.top));
-  }
-</script>
-
-</body>
-</html>
+  // Beispiel-Daten
+  const library = [
+    {
+      id: 1,
+      type: "movie",
+      title: "Inception",
+      poster: "https://image.tmdb.org/t/p/w500/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg",
+      trailer: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+      videos: ["https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"],
+      ratingsCount: 2500,
+      topRank: 2
+    },
+    {
+      id: 2,
+      type: "movie",
+      title: "Interstellar",
+      poster: "https://image.tmdb.org/t/p/w500/rAiYTfKGqDCRIIqo664sY9XZIvQ.jpg",
+      trailer: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      videos: ["https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"],
+      ratingsCount: 3000,
+      topRank: 1
+    },
+    {
+      id: 3,
+      type: "series",
+      title: "Stranger Things",
+      poster: "https://image.tmdb.org/t/p/w500/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg",
+      trailer: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+      seasons: [
+        {
+          season: 1,
+          episodes: [
+            {title: "Chapter One: The Vanishing", video:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"},
+            {title: "Chapter Two: The Weirdo", video:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"}
+          ]
+        }
+      ],
+      ratingsCount: 1500,
+      topRank: 3
+    },
+    {
+      id: 4,
+      type: "movie",
+      title: "The Dark Knight",
+      poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      trailer: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+      videos: ["https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"],
+      ratingsCount: 2000,
+      topRank: null
+    },
+    {
+      id: 5,
+      type: "series",
+      title: "Breaking Bad",
+      poster: "https://image.tmdb.org/t/p/w500/eSzpy96DwBujGFj0xMbXBcGcfxX.jpg",
+      trailer: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample
