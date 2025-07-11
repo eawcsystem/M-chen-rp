@@ -570,4 +570,39 @@
       loginContainer.style.display = "none";
       appHeader.style.display = "flex";
       logoutBtn.style.display = "inline-block";
-      render
+      renderLibrary();
+      content.style.display = "block";
+      searchInput.focus();
+    } else if(username === "gast" && pin === "gast") {
+      currentUserRole = "guest";
+      errorMsg.textContent = "";
+      loginContainer.style.display = "none";
+      appHeader.style.display = "flex";
+      logoutBtn.style.display = "none"; // Gast kann sich nicht ausloggen
+      renderLibrary();
+      content.style.display = "block";
+      searchInput.focus();
+    } else {
+      errorMsg.textContent = "Falscher Benutzername oder PIN!";
+    }
+  });
+
+  // Logout
+  logoutBtn.addEventListener("click", () => {
+    currentUserRole = null;
+    loginContainer.style.display = "flex";
+    appHeader.style.display = "none";
+    content.style.display = "none";
+    detailOverlay.style.display = "none";
+    loginForm.reset();
+    errorMsg.textContent = "";
+  });
+
+  // Suche
+  searchInput.addEventListener("input", () => {
+    renderLibrary(searchInput.value);
+  });
+</script>
+
+</body>
+</html>
