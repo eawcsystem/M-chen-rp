@@ -3,343 +3,354 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StreamFlix - Suche & Filme</title>
+<title>Flix - Filme & Serien</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
   * {
-    margin: 0; padding: 0; box-sizing: border-box;
+    box-sizing: border-box;
   }
-  body, html {
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #0a0f24;
-    overflow-x: hidden;
-    color: white;
-  }
-  /* Hintergrund Berge Animation */
-  .background {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(180deg, #071227 0%, #0a0f24 100%);
-    overflow: hidden;
-    z-index: -1;
-  }
-  .mountain {
-    position: absolute;
-    bottom: 0;
-    width: 150%;
-    height: 250px;
-    background: linear-gradient(135deg, #0b233f 0%, #0f335a 100%);
-    clip-path: polygon(0 100%, 25% 0%, 50% 100%, 75% 0%, 100% 100%);
-    animation: moveMountains 30s linear infinite;
-    opacity: 0.4;
-  }
-  .mountain:nth-child(2) {
-    bottom: 80px;
-    height: 150px;
-    animation-duration: 45s;
-    opacity: 0.3;
-  }
-  .mountain:nth-child(3) {
-    bottom: 30px;
-    height: 200px;
-    animation-duration: 60s;
-    opacity: 0.5;
-  }
-  @keyframes moveMountains {
-    0% {transform: translateX(-25%);}
-    100% {transform: translateX(0);}
-  }
-  
-  /* Header mit Logo und Logout */
-  #appHeader {
-    display: none;
-    background-color: #111;
-    padding: 15px 30px;
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    font-weight: 900;
-    font-size: 24px;
-    color: #e50914;
-  }
-  #appHeader .logo {
-    cursor: default;
-  }
-  #logoutBtn {
-    background: transparent; 
-    border: none; 
-    color: white; 
-    cursor: pointer;
-    font-weight: 700; 
-    font-size: 18px;
-    transition: color 0.3s ease;
-  }
-  #logoutBtn:hover {
-    color: #e50914;
+  body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1f1f1f, #111);
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Login Container */
+  /* Animate mountain background */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1470&q=80') center/cover no-repeat;
+    opacity: 0.15;
+    filter: brightness(0.4);
+    z-index: -1;
+    animation: moveBg 40s linear infinite;
+  }
+  @keyframes moveBg {
+    0% { background-position: 0 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #141414;
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e50914;
+    user-select: none;
+  }
+
+  #logoutBtn {
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #logoutBtn:hover {
+    background: #b00710;
+  }
+
+  /* Login */
   #loginContainer {
-    height: 100vh;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    backdrop-filter: brightness(0.7);
-    text-align: center;
+    padding: 40px 20px;
+    min-height: 70vh;
   }
-  #loginContainer h1 {
-    font-size: 4rem;
-    font-weight: 900;
-    margin-bottom: 30px;
-    color: #e50914;
-    text-shadow: 0 0 10px #e50914;
+  #loginForm {
+    background: rgba(20,20,20,0.9);
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(229,9,20,0.6);
+    width: 320px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
   }
-  form {
-    background: rgba(20, 20, 20, 0.85);
-    padding: 30px 40px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(229, 9, 20, 0.7);
-    width: 100%;
-    max-width: 400px;
+  #loginForm label {
+    margin: 8px 0 4px 0;
+    font-weight: 700;
   }
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-  }
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 20px;
+  #loginForm input {
+    padding: 10px;
     border-radius: 6px;
     border: none;
     font-size: 1rem;
   }
-  input[type="text"]:focus,
-  input[type="password"]:focus {
-    outline: none;
-    box-shadow: 0 0 8px #e50914;
-  }
-  button {
+  #loginForm button {
+    margin-top: 16px;
     background: #e50914;
-    color: white;
-    font-weight: 900;
-    font-size: 1.25rem;
-    width: 100%;
-    padding: 14px 0;
     border: none;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-size: 1.1rem;
+    transition: background 0.3s ease;
   }
-  button:hover {
-    background: #b20710;
+  #loginForm button:hover {
+    background: #b00710;
   }
   #errorMsg {
-    color: #ff4c4c;
-    margin-bottom: 15px;
-    font-weight: 700;
-  }
-
-  /* Content Bereich mit Suchfeld */
-  #content {
-    padding: 30px 20px;
-    max-width: 1200px;
-    margin: auto;
-    color: white;
-    display: none;
-  }
-  #searchContainer {
-    margin-bottom: 25px;
+    color: #ff5252;
+    margin-top: 10px;
+    min-height: 20px;
     text-align: center;
   }
-  #searchInput {
-    width: 80%;
-    max-width: 500px;
-    padding: 12px 20px;
-    border-radius: 30px;
-    border: none;
-    font-size: 1.2rem;
-    box-shadow: 0 0 10px rgba(229,9,20,0.5);
-    transition: box-shadow 0.3s ease;
-  }
-  #searchInput:focus {
-    outline: none;
-    box-shadow: 0 0 20px #e50914;
+  #loginContainer p {
+    margin-top: 20px;
+    color: #aaa;
+    font-size: 0.9rem;
   }
 
-  /* Gitter für Filme & Serien */
+  /* Content */
+  main {
+    flex: 1;
+    padding: 20px 24px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Kategorie Auswahl */
+  #categoryFilter {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  #categoryFilter button {
+    background: #222;
+    border: none;
+    color: #eee;
+    font-weight: 700;
+    padding: 10px 24px;
+    margin: 0 10px;
+    font-size: 1rem;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  #categoryFilter button.active,
+  #categoryFilter button:hover {
+    background: #e50914;
+  }
+
+  /* Suchfeld */
+  #searchContainer {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  #searchInput {
+    width: 100%;
+    max-width: 480px;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    border-radius: 40px;
+    border: none;
+    outline: none;
+    background: #222;
+    color: #eee;
+    box-shadow: 0 0 10px rgba(229,9,20,0.4);
+    transition: box-shadow 0.3s ease;
+  }
+  #searchInput::placeholder {
+    color: #bbb;
+  }
+  #searchInput:focus {
+    box-shadow: 0 0 15px #e50914;
+  }
+
+  /* Grid Layout */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+    gap: 16px;
   }
+
   .card {
-    background: #222;
-    border-radius: 12px;
+    position: relative;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    background: #111;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 270px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 5px transparent;
+  }
+  .card:focus-visible {
+    outline: 3px solid #e50914;
+    outline-offset: 2px;
   }
   .card:hover {
-    transform: scale(1.07);
-    box-shadow: 0 8px 20px rgba(229,9,20,0.7);
+    transform: scale(1.08);
+    box-shadow: 0 10px 20px rgba(229,9,20,0.8);
     z-index: 10;
   }
-  .card img {
-    width: 100%;
-    height: 190px;
-    object-fit: cover;
-    flex-shrink: 0;
+
+  .card img,
+  .card video {
     display: block;
-    border-bottom: 3px solid #e50914;
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
   }
   .card video {
     position: absolute;
     top: 0; left: 0;
-    width: 100%;
-    height: 190px;
-    object-fit: cover;
+    z-index: 1;
     display: none;
   }
+
   .card:hover video {
     display: block;
   }
   .card:hover img {
     display: none;
   }
-  .card > div {
-    padding: 10px;
+
+  .card div.title {
+    padding: 8px 10px;
     font-weight: 700;
-    font-size: 1.1rem;
-    flex-grow: 1;
-    color: #fff;
+    font-size: 1rem;
     text-align: center;
-    user-select: none;
+    background: #141414;
   }
 
   /* Detail Overlay */
   #detailOverlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(0,0,0,0.95);
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
     display: none;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    z-index: 9999;
+    align-items: center;
     padding: 20px;
-  }
-  #detailOverlay h2 {
-    color: white;
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 2rem;
+    z-index: 200;
   }
   #detailOverlay video {
     max-width: 90vw;
-    max-height: 80vh;
+    max-height: 70vh;
     border-radius: 12px;
-    box-shadow: 0 0 20px #e50914;
+    background: black;
+    box-shadow: 0 0 30px #e50914;
   }
+  #detailTitle {
+    margin-top: 12px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #e50914;
+  }
+  #closeDetailBtn {
+    position: fixed;
+    top: 18px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #e50914;
+    font-size: 3rem;
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1;
+    user-select: none;
+    z-index: 300;
+  }
+
+  /* Episoden Buttons */
   #episodeButtons {
-    margin-top: 20px;
+    margin-top: 16px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
   }
   #episodeButtons button {
-    padding: 10px 16px;
+    background: #222;
     border: none;
-    border-radius: 12px;
-    background: #e50914;
-    color: white;
-    cursor: pointer;
+    color: #eee;
     font-weight: 700;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-    font-size: 1rem;
-  }
-  #episodeButtons button.active {
-    opacity: 1;
-  }
-  #episodeButtons button:hover {
-    opacity: 1;
-  }
-  #closeDetailBtn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 14px 24px;
-    font-size: 20px;
+    padding: 6px 14px;
+    border-radius: 20px;
     cursor: pointer;
-    background: #e50914;
-    border: none;
-    color: white;
-    border-radius: 12px;
-    box-shadow: 0 0 10px #e50914;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
   }
-  #closeDetailBtn:hover {
-    background: #b20710;
+  #episodeButtons button.active,
+  #episodeButtons button:hover {
+    background: #e50914;
   }
 
   /* Responsive */
-  @media (max-width: 700px) {
+  @media (max-width: 600px) {
+    .card img,
+    .card video {
+      height: 160px;
+    }
     #searchInput {
-      width: 95%;
+      max-width: 100%;
     }
-    .card {
-      height: 230px;
+    header {
+      padding: 12px 16px;
     }
-    .card img, .card video {
-      height: 150px;
+    #logoutBtn {
+      padding: 8px 12px;
+      font-size: 0.9rem;
     }
   }
+
 </style>
 </head>
 <body>
 
-<div class="background" aria-hidden="true">
-  <div class="mountain" style="animation-delay: 0s;"></div>
-  <div class="mountain" style="animation-delay: -15s;"></div>
-  <div class="mountain" style="animation-delay: -30s;"></div>
-</div>
-
 <!-- Login -->
 <div id="loginContainer" role="main" aria-label="Login Bereich">
-  <h1>StreamFlix</h1>
   <form id="loginForm" aria-describedby="errorMsg" aria-label="Login Formular">
-    <div id="errorMsg" role="alert" aria-live="assertive"></div>
+    <h1 style="text-align:center; margin-bottom: 20px; color:#e50914;">Flix Anmeldung</h1>
     <label for="username">Benutzername</label>
     <input type="text" id="username" name="username" autocomplete="username" required aria-required="true" />
     <label for="pin">PIN</label>
     <input type="password" id="pin" name="pin" autocomplete="current-password" required aria-required="true" />
     <button type="submit" aria-label="Anmelden">Anmelden</button>
+    <p id="errorMsg" role="alert" aria-live="assertive"></p>
   </form>
-  <p style="margin-top: 12px; color: #aaa;">Gastzugang: Benutzername: <strong>gast</strong>, PIN: <strong>gast</strong></p>
+  <p style="margin-top: 16px; color: #aaa; text-align:center;">Gastzugang: Benutzername: <strong>gast</strong>, PIN: <strong>gast</strong></p>
 </div>
 
 <!-- Header -->
-<header id="appHeader" role="banner" aria-label="App Header">
+<header id="appHeader" role="banner" aria-label="App Header" style="display:none;">
   <div class="logo" aria-hidden="true">Flix</div>
   <button id="logoutBtn" aria-label="Abmelden">Logout</button>
 </header>
 
 <!-- Hauptinhalt -->
-<main id="content" tabindex="-1" aria-live="polite" aria-label="Filme und Serien">
+<main id="content" tabindex="-1" aria-live="polite" aria-label="Filme und Serien" style="display:none;">
+
+  <!-- Kategorie Filter -->
+  <nav id="categoryFilter" aria-label="Kategorie Filter">
+    <button type="button" id="btnMovies" class="active" aria-pressed="true">Filme</button>
+    <button type="button" id="btnSeries" aria-pressed="false">Serien</button>
+  </nav>
+
+  <!-- Suche -->
   <div id="searchContainer">
     <input
       type="search"
@@ -347,9 +358,12 @@
       placeholder="Suche Filme oder Serien..."
       aria-label="Suche Filme oder Serien"
       autocomplete="off"
+      spellcheck="false"
     />
   </div>
-  <!-- Hier wird das Grid mit Filmen/Serien gerendert -->
+
+  <!-- Grid -->
+  <div id="gridContainer" class="grid" role="list" aria-label="Film- und Serienliste"></div>
 </main>
 
 <!-- Detail Overlay -->
@@ -357,11 +371,10 @@
   <button id="closeDetailBtn" aria-label="Schließen">&times;</button>
   <h2 id="detailTitle"></h2>
   <video controls playsinline></video>
-  <div id="episodeButtons"></div>
+  <div id="episodeButtons" role="list"></div>
 </div>
 
 <script>
-  // Elemente
   const loginForm = document.getElementById('loginForm');
   const errorMsg = document.getElementById('errorMsg');
   const loginContainer = document.getElementById('loginContainer');
@@ -369,15 +382,19 @@
   const logoutBtn = document.getElementById('logoutBtn');
   const content = document.getElementById('content');
   const searchInput = document.getElementById('searchInput');
+  const gridContainer = document.getElementById('gridContainer');
   const detailOverlay = document.getElementById('detailOverlay');
   const detailTitle = document.getElementById('detailTitle');
   const detailVideo = detailOverlay.querySelector('video');
   const episodeButtons = document.getElementById('episodeButtons');
   const closeDetailBtn = document.getElementById('closeDetailBtn');
+  const btnMovies = document.getElementById('btnMovies');
+  const btnSeries = document.getElementById('btnSeries');
 
   let currentUserRole = null;
+  let currentCategory = "movie"; // "movie" oder "series"
+  let currentFilter = "";
 
-  // Film- und Serienbibliothek
   const library = [
     {
       id: "film1",
@@ -396,6 +413,14 @@
       trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"
     },
     {
+      id: "film3",
+      type: "movie",
+      title: "Interstellar",
+      poster: "https://m.media-amazon.com/images/I/71nXJchWOSL._AC_SY679_.jpg",
+      videos: ["https://interactive-examples.mdn.mozilla.net/media/cc0-videos/tigress.webm"],
+      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"
+    },
+    {
       id: "serie1",
       type: "series",
       title: "Stranger Things",
@@ -410,14 +435,6 @@
         }
       ],
       trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/bee.webm"
-    },
-    {
-      id: "film3",
-      type: "movie",
-      title: "Interstellar",
-      poster: "https://m.media-amazon.com/images/I/71nXJchWOSL._AC_SY679_.jpg",
-      videos: ["https://interactive-examples.mdn.mozilla.net/media/cc0-videos/tigress.webm"],
-      trailer: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"
     },
     {
       id: "serie2",
@@ -437,132 +454,160 @@
     }
   ];
 
-  // Funktion um Filme/Serien anzuzeigen
-  function renderLibrary(filter = "") {
-    content.querySelectorAll('.grid').forEach(g => g.remove());
+  // Kategorie Buttons Event
+  btnMovies.addEventListener('click', () => {
+    if(currentCategory === 'movie') return;
+    currentCategory = 'movie';
+    btnMovies.classList.add('active');
+    btnMovies.setAttribute('aria-pressed', 'true');
+    btnSeries.classList.remove('active');
+    btnSeries.setAttribute('aria-pressed', 'false');
+    renderLibrary();
+    searchInput.value = '';
+    currentFilter = '';
+    searchInput.focus();
+  });
+  btnSeries.addEventListener('click', () => {
+    if(currentCategory === 'series') return;
+    currentCategory = 'series';
+    btnSeries.classList.add('active');
+    btnSeries.setAttribute('aria-pressed', 'true');
+    btnMovies.classList.remove('active');
+    btnMovies.setAttribute('aria-pressed', 'false');
+    renderLibrary();
+    searchInput.value = '';
+    currentFilter = '';
+    searchInput.focus();
+  });
 
-    const filtered = library.filter(item =>
+  // Suche Event
+  searchInput.addEventListener('input', () => {
+    currentFilter = searchInput.value.trim();
+    renderLibrary(currentFilter);
+  });
+
+  // Render Funktion
+  function renderLibrary(filter = "") {
+    gridContainer.innerHTML = "";
+
+    let filtered = library.filter(item => 
+      item.type === currentCategory &&
       item.title.toLowerCase().includes(filter.toLowerCase())
     );
 
-    const grid = document.createElement("div");
-    grid.className = "grid";
-
     if(filtered.length === 0) {
-      const noResult = document.createElement("p");
-      noResult.textContent = "Keine Filme oder Serien gefunden.";
-      noResult.style.textAlign = "center";
-      noResult.style.fontSize = "1.3rem";
-      noResult.style.marginTop = "40px";
-      content.appendChild(noResult);
+      gridContainer.innerHTML = `<p style="text-align:center; width:100%; color:#bbb; font-weight:700; font-size:1.2rem; margin-top: 50px;">
+      Keine ${currentCategory === "movie" ? "Filme" : "Serien"} gefunden.</p>`;
       return;
     }
 
     filtered.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "card";
+      const card = document.createElement('div');
+      card.className = 'card';
       card.tabIndex = 0;
-      card.setAttribute("role", "button");
-      card.setAttribute("aria-label", `Öffne Details für ${item.title}`);
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('aria-label', `${item.title}, klicken für Details`);
 
-      const img = document.createElement("img");
+      const img = document.createElement('img');
       img.src = item.poster;
-      img.alt = `Poster von ${item.title}`;
-
-      const video = document.createElement("video");
-      video.src = item.trailer;
-      video.muted = true;
-      video.loop = true;
-      video.style.position = "absolute";
-      video.style.top = "0";
-      video.style.left = "0";
-      video.style.width = "100%";
-      video.style.height = "190px";
-      video.style.objectFit = "cover";
-      video.style.display = "none";
-
+      img.alt = item.title + " Poster";
       card.appendChild(img);
-      card.appendChild(video);
 
-      const titleDiv = document.createElement("div");
+      if(item.trailer) {
+        const video = document.createElement('video');
+        video.src = item.trailer;
+        video.muted = true;
+        video.loop = true;
+        video.preload = "metadata";
+        card.appendChild(video);
+      }
+
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'title';
       titleDiv.textContent = item.title;
       card.appendChild(titleDiv);
 
-      card.addEventListener("mouseenter", () => {
-        img.style.display = "none";
-        video.style.display = "block";
-        video.play();
-        card.style.transform = "scale(1.07)";
-        card.style.zIndex = "10";
+      card.addEventListener('click', () => {
+        openDetail(item);
       });
-      card.addEventListener("mouseleave", () => {
-        video.pause();
-        video.currentTime = 0;
-        video.style.display = "none";
-        img.style.display = "block";
-        card.style.transform = "scale(1)";
-        card.style.zIndex = "1";
+      card.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDetail(item);
+        }
       });
 
-      card.addEventListener("click", () => openDetail(item));
-
-      grid.appendChild(card);
+      gridContainer.appendChild(card);
     });
-
-    content.appendChild(grid);
   }
 
-  // Detail Overlay schließen
-  closeDetailBtn.addEventListener("click", () => {
+  // Detailansicht öffnen
+  function openDetail(item) {
+    detailTitle.textContent = item.title;
+    detailOverlay.style.display = "flex";
+
+    // Serien haben mehrere Episoden
+    if(item.type === "series") {
+      episodeButtons.innerHTML = "";
+      detailVideo.src = ""; // erstmal löschen
+      if(currentUserRole === 'owner') {
+        // Besitzer kann alle Episoden wählen
+        item.seasons.forEach(season => {
+          season.episodes.forEach((ep, idx) => {
+            const btn = document.createElement('button');
+            btn.textContent = `S${season.season}E${idx+1}: ${ep.title}`;
+            btn.addEventListener('click', () => {
+              setVideoSrc(ep.video);
+              setActiveEpisodeButton(btn);
+            });
+            episodeButtons.appendChild(btn);
+          });
+        });
+        // Erste Episode abspielen + markieren
+        const firstBtn = episodeButtons.querySelector('button');
+        if(firstBtn) {
+          firstBtn.click();
+        }
+      } else {
+        // Gast nur erste Folge der ersten Staffel
+        const firstEp = item.seasons[0].episodes[0];
+        episodeButtons.innerHTML = `<p style="color:#ccc; margin: 8px;">Nur erste Folge für Gastzugang verfügbar</p>`;
+        setVideoSrc(firstEp.video);
+      }
+    } else {
+      // Film
+      episodeButtons.innerHTML = "";
+      setVideoSrc(item.videos[0]);
+    }
+
+    detailVideo.focus();
+  }
+  function setVideoSrc(src) {
+    detailVideo.src = src;
+    detailVideo.play();
+  }
+  function setActiveEpisodeButton(activeBtn) {
+    [...episodeButtons.children].forEach(btn => btn.classList.remove('active'));
+    activeBtn.classList.add('active');
+  }
+
+  // Detailansicht schließen
+  closeDetailBtn.addEventListener('click', () => {
     detailOverlay.style.display = "none";
     detailVideo.pause();
     detailVideo.src = "";
-    episodeButtons.innerHTML = "";
+  });
+  detailOverlay.addEventListener('click', e => {
+    if(e.target === detailOverlay) {
+      closeDetailBtn.click();
+    }
   });
 
-  // Detail Overlay öffnen und Video laden
-  function openDetail(item) {
-    detailTitle.textContent = item.title;
-    episodeButtons.innerHTML = "";
-
-    if(item.type === "movie") {
-      detailVideo.src = item.videos[0];
-      episodeButtons.style.display = "none";
-    } else if(item.type === "series") {
-      if(currentUserRole === "owner") {
-        // Alle Episoden als Buttons anzeigen
-        detailVideo.src = item.seasons[0].episodes[0].video;
-        episodeButtons.style.display = "flex";
-        item.seasons.forEach(season => {
-          season.episodes.forEach((ep, idx) => {
-            const epBtn = document.createElement("button");
-            epBtn.textContent = ep.title;
-            epBtn.classList.add(idx === 0 ? "active" : "");
-            epBtn.addEventListener("click", () => {
-              detailVideo.src = ep.video;
-              detailVideo.play();
-              Array.from(episodeButtons.children).forEach(b => b.classList.remove("active"));
-              epBtn.classList.add("active");
-            });
-            episodeButtons.appendChild(epBtn);
-          });
-        });
-      } else {
-        // Gast: Nur erste Folge ansehen, keine Buttons
-        detailVideo.src = item.seasons[0].episodes[0].video;
-        episodeButtons.style.display = "none";
-      }
-    }
-
-    detailOverlay.style.display = "flex";
-    detailVideo.play();
-  }
-
-  // Login Logik
-  loginForm.addEventListener("submit", (e) => {
+  // Login Formular
+  loginForm.addEventListener('submit', e => {
     e.preventDefault();
     const username = loginForm.username.value.trim().toLowerCase();
-    const pin = loginForm.pin.value.trim().toLowerCase();
+    const pin = loginForm.pin.value.trim();
 
     if(username === "admin" && pin === "admin") {
       currentUserRole = "owner";
@@ -598,11 +643,10 @@
     errorMsg.textContent = "";
   });
 
-  // Suche
-  searchInput.addEventListener("input", () => {
-    renderLibrary(searchInput.value);
-  });
-</script>
+  // Initial nicht sichtbar außer Login
+  appHeader.style.display = "none";
+  content.style.display = "none";
 
+</script>
 </body>
 </html>
