@@ -6,10 +6,11 @@
   <title>StreamFlix</title>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background: #000; color: #fff; }
-    header { display: flex; justify-content: space-between; padding: 1rem; background: #111; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #111; }
     h1 { margin: 0; font-size: 1.5rem; }
-    #languageToggle { cursor: pointer; font-size: 0.9rem; }
+    #languageToggle { cursor: pointer; font-size: 0.9rem; padding: 5px 10px; border: 1px solid #666; border-radius: 5px; }
     #login, #main { max-width: 900px; margin: 2rem auto; padding: 1rem; }
+    input { display: block; margin: 10px 0; padding: 10px; width: 100%; border-radius: 4px; border: none; }
     .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
     .movie-card { background: #1c1c1c; padding: 10px; border-radius: 8px; position: relative; }
     .movie-card img { width: 100%; border-radius: 4px; }
@@ -18,8 +19,8 @@
     .btn:hover { background: #f40612; }
     .highlight { border: 2px solid yellow; }
     video { width: 100%; margin-top: 1rem; border-radius: 8px; }
-    .admin-btn { margin-top: 5px; background: #333; font-size: 0.8rem; }
-    #logoutBtn { float: right; background: #444; }
+    .admin-btn { margin-top: 5px; background: #444; font-size: 0.8rem; padding: 6px; }
+    #logoutBtn { background: #444; margin-left: 10px; }
   </style>
 </head>
 <body>
@@ -28,7 +29,7 @@
   <h1>StreamFlix</h1>
   <div>
     <span id="languageToggle">EN</span>
-    <button id="logoutBtn" class="btn" style="display:none;">Logout</button>
+    <button id="logoutBtn" class="btn" style="display:none;" onclick="logout()">Logout</button>
   </div>
 </header>
 
@@ -66,25 +67,27 @@
       poster: "posters/inception.jpg",
       highlighted: false
     }
-    // Du kannst hier mehr Filme hinzufügen
   ];
 
   let lang = "de";
   let currentUser = null;
 
-  const languageToggle = document.getElementById("languageToggle");
-  const logoutBtn = document.getElementById("logoutBtn");
+  document.getElementById("languageToggle").onclick = () => {
+    lang = lang === "de" ? "en" : "de";
+    document.getElementById("languageToggle").textContent = lang === "de" ? "EN" : "DE";
+    if (currentUser) renderMovies();
+  };
 
   function login() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
     const errorEl = document.getElementById("loginError");
 
     if (users[user] && users[user].password === pass) {
       currentUser = { name: user, role: users[user].role };
       document.getElementById("login").style.display = "none";
       document.getElementById("main").style.display = "block";
-      logoutBtn.style.display = "inline-block";
+      document.getElementById("logoutBtn").style.display = "inline-block";
       renderMovies();
     } else {
       errorEl.textContent = lang === "de" ? "Falscher Benutzer oder PIN." : "Wrong username or PIN.";
@@ -95,16 +98,11 @@
     currentUser = null;
     document.getElementById("main").style.display = "none";
     document.getElementById("login").style.display = "block";
-    logoutBtn.style.display = "none";
+    document.getElementById("logoutBtn").style.display = "none";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("loginError").textContent = "";
   }
-
-  logoutBtn.onclick = logout;
-
-  languageToggle.onclick = () => {
-    lang = lang === "de" ? "en" : "de";
-    languageToggle.textContent = lang === "de" ? "EN" : "DE";
-    if (currentUser) renderMovies();
-  };
 
   function renderMovies() {
     const container = document.getElementById("movieContainer");
