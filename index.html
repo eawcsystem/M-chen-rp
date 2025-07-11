@@ -14,6 +14,7 @@
     background-color: #111;
     padding: 15px 30px;
     display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap;
   }
   header h1 {
     color: #e50914; font-weight: 900; font-size: 28px; margin: 0;
@@ -26,6 +27,8 @@
     color: white;
     font-size: 16px;
     width: 300px;
+    max-width: 100%;
+    margin-left: 20px;
   }
   #searchInput::placeholder {
     color: #bbb;
@@ -33,6 +36,7 @@
   #logoutBtn {
     background: transparent; border: none; color: white; cursor: pointer;
     font-weight: 700; font-size: 16px;
+    margin-left: 20px;
   }
   #logoutBtn:hover {
     text-decoration: underline;
@@ -72,6 +76,13 @@
     height: 180px;
     object-fit: cover;
     flex-shrink: 0;
+    display: block;
+  }
+  .card video {
+    position: absolute;
+    top: 0; left: 0;
+    display: none;
+    z-index: 1;
   }
   .card .title {
     padding: 8px 10px;
@@ -120,7 +131,7 @@
     padding: 20px;
     flex-direction: column;
   }
-  video {
+  #detailContent video {
     max-width: 90vw;
     max-height: 80vh;
     border-radius: 10px;
@@ -174,6 +185,12 @@
       width: 100%;
       margin: 10px 0 0 0;
       font-size: 18px;
+      margin-left: 0;
+    }
+
+    #logoutBtn {
+      margin-left: 0;
+      margin-top: 10px;
     }
 
     main {
@@ -220,12 +237,12 @@
 
 <header>
   <h1>StreamFlix</h1>
-  <input id="searchInput" type="search" placeholder="Suche Filme und Serien..." />
+  <input id="searchInput" type="search" placeholder="Suche Filme und Serien..." aria-label="Suche Filme und Serien" />
   <button id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
 </header>
 
-<main id="content">
-  <!-- Dynamisch gefüllt -->
+<main id="content" aria-live="polite">
+  <!-- Inhalte werden hier geladen -->
 </main>
 
 <!-- Detail-Overlay für Film/Serie -->
@@ -344,11 +361,12 @@
       const card = document.createElement("div");
       card.className = "card";
 
-      // Bild und Video - Video nur für Hover (trailer)
+      // Bild
       const img = document.createElement("img");
       img.src = item.poster;
       img.alt = `${item.title} Poster`;
 
+      // Video für Trailer (hover)
       const video = document.createElement("video");
       video.src = item.trailer;
       video.muted = true;
@@ -360,18 +378,18 @@
       video.style.height = "180px";
       video.style.objectFit = "cover";
       video.style.display = "none";
-      video.style.zIndex = "1";
       video.setAttribute("aria-hidden", "true");
 
       card.appendChild(img);
       card.appendChild(video);
 
-      const title = document.createElement("div");
-      title.className = "title";
-      title.textContent = item.title;
-      card.appendChild(title);
+      // Titel
+      const titleDiv = document.createElement("div");
+      titleDiv.className = "title";
+      titleDiv.textContent = item.title;
+      card.appendChild(titleDiv);
 
-      // Trailer bei Hover anzeigen
+      // Hover: Trailer starten und Bild ausblenden
       card.addEventListener("mouseenter", () => {
         img.style.display = "none";
         video.style.display = "block";
@@ -379,11 +397,12 @@
       });
       card.addEventListener("mouseleave", () => {
         video.pause();
+        video.currentTime = 0;
         video.style.display = "none";
         img.style.display = "block";
       });
 
-      // Film/Serie öffnen beim Klick
+      // Klick: Detailansicht
       card.addEventListener("click", () => {
         openDetail(item);
       });
@@ -394,13 +413,12 @@
     content.appendChild(grid);
   }
 
-  // Detailansicht öffnen
+  // Detail Overlay öffnen (Film oder Serie)
   function openDetail(item) {
     detailTitle.textContent = item.title;
     detailContent.innerHTML = "";
 
     if(item.type === "movie") {
-      // Film Video
       const video = document.createElement("video");
       video.src = item.videos[0];
       video.controls = true;
@@ -409,7 +427,6 @@
       video.style.maxWidth = "90vw";
       detailContent.appendChild(video);
     } else if(item.type === "series") {
-      // Serien Video + Episoden Liste
       const video = document.createElement("video");
       video.src = item.seasons[0].episodes[0].video;
       video.controls = true;
@@ -453,7 +470,9 @@
   });
 
   // Beim Laden Login starten
-  login();
+  window.onload = () => {
+    login();
+  };
 </script>
 
 </body>
